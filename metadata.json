@@ -1,0 +1,8 @@
+{
+  "description": "my personal assistant with no features",
+  "name": "jarvis",
+  "shell-version": ["45"],
+  "url": "",
+  "uuid": "example@example.com",
+  "version": 1
+}
