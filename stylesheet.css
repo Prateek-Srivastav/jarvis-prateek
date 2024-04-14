@@ -1,3 +1,13 @@
 .examplePanelText {
   color: yellow;
 }
+
+/* .result-label {
+  width: 300px;
+  white-space: pre-wrap;
+} */
+
+.scroll-view {
+  height: 100px;
+  border: 1px solid red;
+}

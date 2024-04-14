@@ -1,0 +1,18 @@
+<!-- <?xml version="1.0" encoding="UTF-8"?> -->
+<schemalist gettext-domain="gnome-shell-extensions">
+    
+  <schema id="org.gnome.shell.extensions.jarvis"
+    path="/org/gnome/shell/extensions/jarvis/">
+    
+    <key type="as" name="toggle-assistant">
+      <default><![CDATA[['<Super>z']]]></default>
+      <summary>The shortcut key</summary>
+      <description>
+        You can create GTK entry in prefs and set it as CDATA.
+      </description>
+    </key>
+    
+  </schema>
+  
+</schemalist>
+

@@ -1,7 +1,9 @@
 {
   "description": "my personal assistant with no features",
   "name": "jarvis",
+  "gettext-domain": "jarvis",
   "shell-version": ["45"],
+  "settings-schema": "org.gnome.shell.extensions.jarvis",
   "url": "",
   "uuid": "jarvis@prateek",
   "version": 1
