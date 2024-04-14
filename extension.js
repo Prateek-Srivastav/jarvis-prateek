@@ -112,6 +112,8 @@ const Jarvis = GObject.registerClass(
 
       // Handle the 'key-press-event' for the input field
       this._bindShortcuts();
+
+      resultLabel.set_text(this.get_starting_text());
       inputItem.clutter_text.connect("key-press-event", (actor, event) => {
         let symbol = event.get_key_symbol();
         if (symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter) {
@@ -193,6 +195,18 @@ const Jarvis = GObject.registerClass(
       );
 
       resultLabel.set_text("thinking...");
+    }
+
+    get_starting_text() {
+      const texts = [
+        "Aha, your laptop must have pulled quite the stunt to deserve a restart. Care to share the drama?",
+        "Ah, a laptop reboot! I'm curious what prompted this delightful refresh.",
+        "Aha, your laptop graced us with a reboot. Care to share what sin it committed to deserve this?",
+        "I see, you've rebooted your laptop.\nCan I know what your laptop did to owe this pleasure?",
+      ];
+
+      const randomIndex = Math.floor(Math.random() * texts.length);
+      return texts[randomIndex];
     }
   }
 );
