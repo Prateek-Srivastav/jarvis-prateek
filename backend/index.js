@@ -16,6 +16,8 @@ app.post("/response", async (req, res) => {
   const result = await getGroqChatCompletion({
     question: req.body.question,
   });
+  if (result.message === "no_conn") return res.send("No internet connection.");
+  // console.log(result);
   const response =
     result.choices[0]?.message?.content || "No response, check backend";
   // console.log(response);
