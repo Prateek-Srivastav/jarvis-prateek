@@ -62,7 +62,7 @@ const Jarvis = GObject.registerClass(
       // Create an input field
       let inputItem = new St.Entry({
         style_class: "example-input",
-        hint_text: _("Type something..."),
+        hint_text: _("ask anything..."),
         can_focus: true,
         width: 400,
       });
@@ -174,7 +174,7 @@ const Jarvis = GObject.registerClass(
       );
       // message.request_headers.append("Authorization", "Bearer <API_KEY>");
       // message.request_headers.append("Content-Type", "application/json");
-      resultLabel.set_text("sending request");
+      resultLabel.set_text("transmitting question...");
       console.log("HELLLO");
       httpSession.send_and_read_async(
         message,
@@ -192,7 +192,7 @@ const Jarvis = GObject.registerClass(
         }
       );
 
-      resultLabel.set_text("request completed");
+      resultLabel.set_text("thinking...");
     }
   }
 );
