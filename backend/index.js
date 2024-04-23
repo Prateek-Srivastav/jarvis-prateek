@@ -48,7 +48,7 @@ const wss = new WebSocket.Server({ port: 8080 });
 wss.on("connection", (ws) => {
   // Code to handle new WebSocket connections
   console.log("CONNECTED");
-
+  console.log(wss.clients.size);
   ws.on("error", console.error);
   ws.on("message", async function message(data) {
     const question = data.toString();

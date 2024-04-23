@@ -19,7 +19,9 @@ Make the answer as short as possible, ideally no more than 80 words.
 Search results:
 """
 ${searchResults ? searchResults : "No search results, answer on your own."}
-"""`;
+"""
+Be a little dark and sarcastic.
+`;
 
   console.log(prompt);
 
