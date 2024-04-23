@@ -112,17 +112,18 @@ const Jarvis = GObject.registerClass(
 
       // Handle the 'key-press-event' for the input field
       this._bindShortcuts();
+      this.makeWebSocketConnection(resultLabel, inputItem);
 
       resultLabel.set_text(this.get_starting_text());
-      inputItem.clutter_text.connect("key-press-event", (actor, event) => {
-        let symbol = event.get_key_symbol();
-        if (symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter) {
-          // When Enter is pressed, make a request and update the label with the result
-          this.makeRequest(resultLabel, inputItem);
-          return Clutter.EVENT_STOP;
-        }
-        return Clutter.EVENT_PROPAGATE;
-      });
+      // inputItem.clutter_text.connect("key-press-event", (actor, event) => {
+      //   let symbol = event.get_key_symbol();
+      //   if (symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter) {
+      //     // When Enter is pressed, make a request and update the label with the result
+      //     this.makeRequest(resultLabel, inputItem);
+      //     return Clutter.EVENT_STOP;
+      //   }
+      //   return Clutter.EVENT_PROPAGATE;
+      // });
     }
 
     _bindShortcuts() {
@@ -195,6 +196,72 @@ const Jarvis = GObject.registerClass(
       );
 
       resultLabel.set_text("thinking...");
+    }
+
+    makeWebSocketConnection(resultLabel, inputItem) {
+      const session = new Soup.Session();
+      const message = new Soup.Message({
+        method: "GET",
+        uri: GLib.Uri.parse("ws://localhost:8080/", GLib.UriFlags.NONE),
+      });
+      const decoder = new TextDecoder();
+
+      session.websocket_connect_async(
+        message,
+        null,
+        [],
+        null,
+        null,
+        websocket_connect_async_callback
+      );
+
+      function websocket_connect_async_callback(_session, res) {
+        let connection;
+
+        try {
+          connection = session.websocket_connect_finish(res);
+        } catch (err) {
+          logError(err);
+
+          return;
+        }
+
+        connection.connect("closed", () => {
+          log("closed");
+        });
+
+        connection.connect("error", (self, err) => {
+          logError(err);
+        });
+
+        let result = "";
+
+        connection.connect("message", (self, type, data) => {
+          if (type !== Soup.WebsocketDataType.TEXT) return;
+
+          const str = decoder.decode(data.toArray());
+          result += str;
+          log(`message: ${str}`);
+          resultLabel.set_text(result);
+          inputItem.clutter_text.connect("key-press-event", (actor, event) => {
+            let symbol = event.get_key_symbol();
+            if (
+              symbol === Clutter.KEY_Return ||
+              symbol === Clutter.KEY_KP_Enter
+            ) {
+              // When Enter is pressed, make a request and update the label with the result
+
+              connection.send_text(inputItem.get_text());
+              result = "";
+              return Clutter.EVENT_STOP;
+            }
+            return Clutter.EVENT_PROPAGATE;
+          });
+          // connection.close(Soup.WebsocketCloseCode.NORMAL, null);
+        });
+
+        log("open");
+      }
     }
 
     get_starting_text() {
