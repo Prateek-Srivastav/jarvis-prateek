@@ -8,8 +8,8 @@ const exa = new Exa(process.env.EXA_API_KEY);
 const getOnlineChatCompletion = async ({ question, ws }) => {
   try {
     const search_response = await exa.searchAndContents(question, {
-      // highlights: true,
-      // numSentences: 7,
+      highlights: { highlightsPerUrl: 10, numSentences: 10 },
+      text: { includeHtmlTags: false, maxCharacters: 2000 },
       numResults: 5,
       useAutoprompt: true,
     });
