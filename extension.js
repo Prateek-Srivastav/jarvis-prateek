@@ -76,6 +76,7 @@ const Jarvis = GObject.registerClass(
         this._setFocusOnOpenTimeout = setTimeout(() => {
           if (open) {
             global.stage.set_key_focus(inputItem);
+            this.makeWebSocketConnection(resultLabel, inputItem);
           }
         }, 50);
       });
@@ -112,7 +113,7 @@ const Jarvis = GObject.registerClass(
 
       // Handle the 'key-press-event' for the input field
       this._bindShortcuts();
-      this.makeWebSocketConnection(resultLabel, inputItem);
+      // this.makeWebSocketConnection(resultLabel, inputItem);
 
       resultLabel.set_text(this.get_starting_text());
       // inputItem.clutter_text.connect("key-press-event", (actor, event) => {
@@ -198,7 +199,7 @@ const Jarvis = GObject.registerClass(
       resultLabel.set_text("thinking...");
     }
 
-    makeWebSocketConnection(resultLabel, inputItem) {
+    makeWebSocketConnection(resultLabel, inputItem, close = false) {
       const session = new Soup.Session();
       const message = new Soup.Message({
         method: "GET",
@@ -222,7 +223,6 @@ const Jarvis = GObject.registerClass(
           connection = session.websocket_connect_finish(res);
         } catch (err) {
           logError(err);
-
           return;
         }
 
@@ -257,6 +257,7 @@ const Jarvis = GObject.registerClass(
             }
             return Clutter.EVENT_PROPAGATE;
           });
+
           // connection.close(Soup.WebsocketCloseCode.NORMAL, null);
         });
 
