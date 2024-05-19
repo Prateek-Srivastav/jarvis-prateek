@@ -162,42 +162,42 @@ const Jarvis = GObject.registerClass(
         clearTimeout(this._setFocusOnOpenTimeout);
     }
 
-    makeRequest(resultLabel, inputItem) {
-      let httpSession = new Soup.Session();
-      let params = {
-        question: inputItem.get_text(),
-        // messages: JSON.stringify([
-        //   { role: "user", content: "meaning of meaning in one line" },
-        // ]),
-        // model: "mixtral-8x7b-32768",
-      };
-      let message = Soup.Message.new_from_encoded_form(
-        "POST",
-        "http://localhost:9565/response",
-        Soup.form_encode_hash(params)
-      );
-      // message.request_headers.append("Authorization", "Bearer <API_KEY>");
-      // message.request_headers.append("Content-Type", "application/json");
-      resultLabel.set_text("transmitting question...");
-      console.log("HELLLO");
-      httpSession.send_and_read_async(
-        message,
-        GLib.PRIORITY_DEFAULT,
-        null,
-        (session, result) => {
-          console.log("MESSAGE: ", message.get_status());
-          // if (message.get_status() === Soup.Status.OK) {
-          let bytes = session.send_and_read_finish(result);
-          let decoder = new TextDecoder("utf-8");
-          let response = decoder.decode(bytes.get_data());
-          console.log(`Response: ${response}`);
-          resultLabel.set_text(response);
-          // }
-        }
-      );
+    // makeRequest(resultLabel, inputItem) {
+    //   let httpSession = new Soup.Session();
+    //   let params = {
+    //     question: inputItem.get_text(),
+    //     // messages: JSON.stringify([
+    //     //   { role: "user", content: "meaning of meaning in one line" },
+    //     // ]),
+    //     // model: "mixtral-8x7b-32768",
+    //   };
+    //   let message = Soup.Message.new_from_encoded_form(
+    //     "POST",
+    //     "http://localhost:9565/response",
+    //     Soup.form_encode_hash(params)
+    //   );
+    //   // message.request_headers.append("Authorization", "Bearer <API_KEY>");
+    //   // message.request_headers.append("Content-Type", "application/json");
+    //   resultLabel.set_text("transmitting question...");
+    //   console.log("HELLLO");
+    //   httpSession.send_and_read_async(
+    //     message,
+    //     GLib.PRIORITY_DEFAULT,
+    //     null,
+    //     (session, result) => {
+    //       console.log("MESSAGE: ", message.get_status());
+    //       // if (message.get_status() === Soup.Status.OK) {
+    //       let bytes = session.send_and_read_finish(result);
+    //       let decoder = new TextDecoder("utf-8");
+    //       let response = decoder.decode(bytes.get_data());
+    //       console.log(`Response: ${response}`);
+    //       resultLabel.set_text(response);
+    //       // }
+    //     }
+    //   );
 
-      resultLabel.set_text("thinking...");
-    }
+    //   resultLabel.set_text("thinking...");
+    // }
 
     makeWebSocketConnection(resultLabel, inputItem, close = false) {
       const session = new Soup.Session();
@@ -235,13 +235,17 @@ const Jarvis = GObject.registerClass(
         });
 
         let result = "";
-
+        let messages = [];
         connection.connect("message", (self, type, data) => {
           if (type !== Soup.WebsocketDataType.TEXT) return;
 
-          const str = decoder.decode(data.toArray());
-          result += str;
-          log(`message: ${str}`);
+          let str = decoder.decode(data.toArray());
+          if (str.length > 1) str = JSON.parse(str);
+          // console.log(str);
+          result += str.res;
+          messages = str.messages;
+
+          // log("messages", messages);
           resultLabel.set_text(result);
           inputItem.clutter_text.connect("key-press-event", (actor, event) => {
             let symbol = event.get_key_symbol();
@@ -250,8 +254,14 @@ const Jarvis = GObject.registerClass(
               symbol === Clutter.KEY_KP_Enter
             ) {
               // When Enter is pressed, make a request and update the label with the result
+              console.log("inside", messages);
 
-              connection.send_text(inputItem.get_text());
+              connection.send_text(
+                JSON.stringify({
+                  messages: messages,
+                  question: inputItem.get_text(),
+                })
+              );
               result = "";
               return Clutter.EVENT_STOP;
             }
