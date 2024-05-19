@@ -23,7 +23,7 @@ ${searchResults ? searchResults : "No search results, answer on your own."}
 Be a little dark and sarcastic.
 `;
 
-  console.log(prompt);
+  // console.log(prompt);
 
   return prompt;
 };

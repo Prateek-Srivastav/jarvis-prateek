@@ -5,7 +5,7 @@ const Exa = require("exa-js").default;
 
 const exa = new Exa(process.env.EXA_API_KEY);
 
-const getOnlineChatCompletion = async ({ question, ws }) => {
+const getOnlineChatCompletion = async ({ question, prevMessages, ws }) => {
   try {
     const search_response = await exa.searchAndContents(question, {
       highlights: { highlightsPerUrl: 10, numSentences: 10 },
@@ -26,13 +26,16 @@ const getOnlineChatCompletion = async ({ question, ws }) => {
     const groq = new Groq({
       apiKey: process.env.GROQ_API_KEY,
     });
+    let messages = [
+      ...prevMessages,
+      {
+        role: "user",
+        content: question,
+      },
+    ];
     const result = await groq.chat.completions.create({
       messages: [
-        {
-          role: "system",
-          content:
-            "you are a helpful friend of Prateek and you should provide point to point answers to his questions with using as few words as possible. Be a little dark and sarcastic. Read the provided contexts and, if relevant, use them to answer the question.",
-        },
+        ...prevMessages,
         {
           role: "user",
           content: promptGenerator({ question, searchResults: info }),
@@ -41,12 +44,17 @@ const getOnlineChatCompletion = async ({ question, ws }) => {
       stream: true,
       model: "llama3-70b-8192",
     });
+
+    let response = "";
     for await (const chunk of result) {
       // Print the completion returned by the LLM.
       process.stdout.write(chunk.choices[0]?.delta?.content || "");
       let res = chunk.choices[0]?.delta?.content;
-      ws.send(res);
+      response += res;
+      ws.send(JSON.stringify({ res }));
     }
+    messages.push({ role: "assistant", content: response });
+    ws.send(JSON.stringify({ messages }));
     // console.log(result);
     if (result) return { result: "OK" };
   } catch (error) {
