@@ -51,13 +51,18 @@ wss.on("connection", (ws) => {
   console.log(wss.clients.size);
   ws.on("error", console.error);
   ws.on("message", async function message(data) {
-    const question = data.toString();
-    console.log("received:", data.toString());
+    data = JSON.parse(data);
+    console.log(data);
+    const question = data.question;
+    // let questions = [];
+    // questions.push(question);
+    // console.log("received:", questions);
     const isConnected = await isInternetConn();
     console.log(isConnected);
     if (isConnected) {
       getOnlineChatCompletion({
-        question: question,
+        prevMessages: data.messages ? data.messages : [],
+        question,
         ws,
       });
       // if (result.message === "err") return res.send(result.error);
